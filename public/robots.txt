@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+Disallow: 
+
+# Host
+Host: https://passphrase.ll-u.pro
+
+# Sitemaps
+Sitemap: https://passphrase.ll-u.pro/sitemap.xml

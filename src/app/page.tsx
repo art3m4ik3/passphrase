@@ -1,103 +1,148 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from "react";
+import { Shield, Key, RefreshCw, Trash2, Brain } from "lucide-react";
+import PhraseGenerator from "@/components/PhraseGenerator";
+import PhraseManager from "@/components/PhraseManager";
+import ImportExport from "@/components/ImportExport";
+import PhraseTest from "@/components/PhraseTest";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [activeTab, setActiveTab] = useState<
+    "generate" | "manage" | "import" | "test"
+  >("generate");
+  const {
+    phrases,
+    savePhrase,
+    deletePhrase,
+    clearAllData,
+    exportToJSON,
+    exportToCSV,
+    importFromJSON,
+    importFromCSV,
+  } = useLocalStorage();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const handleClearAll = () => {
+    if (
+      confirm(
+        "Вы уверены, что хотите удалить все сохраненные фразы? Это действие нельзя отменить.",
+      )
+    ) {
+      clearAllData();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8">
+        <header className="text-center mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4">
+            <Shield className="text-blue-600" size={32} />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
+              PassPhrase
+            </h1>
+          </div>
+          <p className="text-gray-600 text-sm sm:text-base lg:text-lg px-4">
+            Современная замена паролей с мнемоническими фразами и визуальными
+            подсказками
+          </p>
+        </header>
+
+        <nav className="flex justify-center mb-6 sm:mb-8 px-2">
+          <div className="bg-white rounded-lg p-1 shadow-md flex flex-col sm:flex-row w-full sm:w-auto max-w-md sm:max-w-none">
+            <button
+              onClick={() => setActiveTab("generate")}
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md transition-colors font-medium text-sm sm:text-base ${
+                activeTab === "generate"
+                  ? "bg-blue-500 text-white shadow-sm"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+            >
+              <Key size={16} />
+              <span className="hidden sm:inline">Создать фразу</span>
+              <span className="sm:hidden">Создать</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("manage")}
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md transition-colors font-medium text-sm sm:text-base ${
+                activeTab === "manage"
+                  ? "bg-blue-500 text-white shadow-sm"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+            >
+              <Shield size={16} />
+              <span className="hidden sm:inline">
+                Мои фразы ({phrases.length})
+              </span>
+              <span className="sm:hidden">Фразы ({phrases.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("import")}
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md transition-colors font-medium text-sm sm:text-base ${
+                activeTab === "import"
+                  ? "bg-blue-500 text-white shadow-sm"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+            >
+              <RefreshCw size={16} />
+              <span className="hidden sm:inline">Импорт/Экспорт</span>
+              <span className="sm:hidden">Импорт</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("test")}
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md transition-colors font-medium text-sm sm:text-base ${
+                activeTab === "test"
+                  ? "bg-blue-500 text-white shadow-sm"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+            >
+              <Brain size={16} />
+              <span className="hidden sm:inline">Проверка памяти</span>
+              <span className="sm:hidden">Тест</span>
+            </button>
+          </div>
+        </nav>
+
+        <main>
+          {activeTab === "generate" ? (
+            <PhraseGenerator onSave={savePhrase} />
+          ) : activeTab === "import" ? (
+            <ImportExport
+              onExportJSON={exportToJSON}
+              onExportCSV={exportToCSV}
+              onImportJSON={importFromJSON}
+              onImportCSV={importFromCSV}
+              phrasesCount={phrases.length}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          ) : activeTab === "test" ? (
+            <PhraseTest phrases={phrases} />
+          ) : (
+            <div>
+              <div className="flex justify-end mb-4">
+                {phrases.length > 0 && (
+                  <button
+                    onClick={handleClearAll}
+                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-md"
+                  >
+                    <Trash2 size={16} />
+                    Очистить все
+                  </button>
+                )}
+              </div>
+              <PhraseManager phrases={phrases} onDelete={deletePhrase} />
+            </div>
+          )}
+        </main>
+
+        <footer className="mt-16 text-center text-gray-500 text-sm">
+          <p className="mb-2">
+            PassPhrase - безопасное хранение паролей с использованием
+            мнемонических техник
+          </p>
+          <p>Все данные хранятся локально в вашем браузере</p>
+        </footer>
+      </div>
     </div>
   );
 }
